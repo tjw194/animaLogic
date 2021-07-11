@@ -1,5 +1,5 @@
 import copy
-
+from pygame import mixer
 import pygame
 import sys
 import random
@@ -31,10 +31,10 @@ def make_text(text, color, bg_color, top, left):
 
 
 # store the option buttons and their rectangles in OPTIONS
-undo_surf, undo_rect = make_text('Undo Move', text_color, tile_color, window_width - 120, window_height - panel_height - 120)
-reset_surf, reset_rect = make_text('Reset', text_color, tile_color, window_width - 120, window_height - panel_height - 90)
-solve_surf, solve_rect = make_text('Solve', text_color, tile_color, window_width - 120, window_height - panel_height - 60)
-new_surf, new_rect = make_text('New Game', text_color, tile_color, window_width - 120, window_height - panel_height - 30)
+undo_surf, undo_rect = make_text('Undo Move', text_color, tile_color, window_width - 220, window_height - panel_height - 240)
+reset_surf, reset_rect = make_text('Reset', text_color, tile_color, window_width - 220, window_height - panel_height - 180)
+solve_surf, solve_rect = make_text('Solve', text_color, tile_color, window_width - 220, window_height - panel_height - 120)
+new_surf, new_rect = make_text('New Game', text_color, tile_color, window_width - 220, window_height - panel_height - 60)
 
 
 def terminate():
@@ -87,17 +87,24 @@ def get_starting_board(pieces, shuffle=True):
     return board
 
 
-def valid_move(choice, board):
-    if choice == None:
-        return False
+def get_options(board):
+    # gets available choices for a given board - does not check validity
     options = []
-    color = choice.split(' ')[0]
-    animal = choice.split(' ')[1]
     for x in range(len(board)):
         for y in range(len(board[x])):
             if board[x][y] is not None:
                 options.append(board[x][y])
                 break
+    return options
+
+
+def valid_move(choice, board):
+    if choice is None:
+        return False
+    options = get_options(board)
+    color = choice.split(' ')[0]
+    animal = choice.split(' ')[1]
+
     if choice in options:
         if all_moves:
             match = all_moves[-1]
@@ -109,6 +116,7 @@ def valid_move(choice, board):
             return True
     else:
         return False
+
 
 def get_left_top_of_tile(tile_x, tile_y):
     left = x_margin + (tile_x * tile_size) + (tile_x - 1)
@@ -139,6 +147,7 @@ def draw_tile(tile_x, tile_y, piece, adjx=0, adjy=0):
     pygame.draw.rect(display_surf, color, (left + adjx + 2, top + adjy, tile_size - 4, tile_size))
 
     animal_icon = pygame.image.load(icon_path + piece_icons[animal])
+    animal_icon = pygame.transform.scale(animal_icon, (icon_size, icon_size))
 
     img_rect = animal_icon.get_rect()
     img_rect.center = left + int(tile_size / 2) + adjx, top + int(tile_size / 2) + adjy
@@ -160,6 +169,8 @@ def draw_picked_tile(order, piece, adjx=0, adjy=0):
 
     pygame.draw.rect(display_surf, color, (left + adjx, top + adjy, tile_size, tile_size))
     icon = pygame.image.load(icon_path + piece_icons[animal])
+    icon = pygame.transform.scale(icon, (icon_size, icon_size))
+
     img_rect = icon.get_rect()
     img_rect.center = left + int(tile_size / 2) + adjx, top + int(tile_size / 2) + adjy
     display_surf.blit(icon, img_rect)
@@ -194,25 +205,62 @@ def draw_board(board, message):
         draw_picked_tile(_, move)
 
 
+paths = []
+
+
+def pathfinder(board, path=[]):
+    options = get_options(board)
+
+    if not path:
+        pot_paths = copy.deepcopy(options)
+    else:
+        choice = path[-1]
+        pot_paths = []
+        for option in options:
+            if (choice.split(' ')[0] == option.split(' ')[0]) or (choice.split(' ')[1] == option.split(' ')[1]):
+                pot_paths.append(option)
+    # base case
+    if not options:
+        paths.append(path)
+        return paths
+    else:
+        for choice in pot_paths:
+            new_board = copy.deepcopy(board)
+            new_path = copy.deepcopy(path)
+            new_path.append(choice)
+            for x in range(len(board)):
+                for y in range(len(board[x])):
+                    if choice == board[x][y]:
+                        new_board[x][y] = None
+            pathfinder(new_board, new_path)
+
 
 def main():
 
-    global all_moves
+    global all_moves, paths
 
-    main_board = get_starting_board(get_pieces())
+    while not paths:
+        main_board = get_starting_board(get_pieces())
+        pathfinder(main_board)
 
+    win_state = False
     # save a copy for undo and reset functions
     start_board = copy.deepcopy(main_board)
-    # TODO: should check if puzzle is solveable
 
     while True:  # main game loop
 
         msg = 'click animal to select.'  # contains the message to show in the upper left
 
-        # TODO: test this !
+
+
         # when puzzle is solved
         if len(all_moves) == board_width * board_height:
             msg = 'Solved!'
+            if not win_state:
+                win_state = True
+                win_sound = mixer.Sound('./sounds/applause.wav')
+                win_sound.set_volume(0.5)
+                win_sound.play()
 
         draw_board(main_board, msg)
 
@@ -227,22 +275,25 @@ def main():
 
                     # check if the user clicked on an option button
                     if reset_rect.collidepoint(event.pos):
+                        win_state = False
                         main_board = copy.deepcopy(start_board)
                         draw_board(main_board, msg)
                         all_moves = []
                     elif new_rect.collidepoint(event.pos):
-                        main_board = get_starting_board(get_pieces())
+                        win_state = False
+                        paths = []
+                        while not paths:
+                            main_board = get_starting_board(get_pieces())
+                            pathfinder(main_board)
                         start_board = copy.deepcopy(main_board)
                         # TODO: should check if puzzle is solveable
                         all_moves = []
                     elif solve_rect.collidepoint(event.pos):
                         # need to implement solving function
-                        # resetAnimation(main_board + all_moves)
-                        # all_moves = []
-                        pass
+                        all_moves = paths[0]
                     elif undo_rect.collidepoint(event.pos):
                         if len(all_moves) > 0:
-                            # TODO: move piece from solution back to board
+                            win_state = False
                             last_move = all_moves.pop(-1)
                             for x in range(len(start_board)):
                                 for y in range(len(start_board[x])):

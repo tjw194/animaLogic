@@ -1,9 +1,11 @@
 # create the constants
 board_width = 4
 board_height = 4
-tile_size = 80
-# TODO: dynamic window size to better deal with larger board sizes
+tile_size = 80 * (4 / board_height)
+icon_size = int(0.8 * tile_size)
+
 window_width = 800
+
 window_height = 640
 
 # num of rows needed to display all picked tiles
@@ -23,7 +25,7 @@ bg_color = dark_blue
 tile_color = black
 text_color = white
 border_color = dark_green
-font_size = 20
+font_size = 40
 tile_font_size = 12
 
 button_color = white
@@ -41,9 +43,13 @@ piece_icons = {'hippo': 'hippo.png',
                'camel': 'camel.png',
                'giraffe': 'giraffe.png',
                'monkey': 'monkey.png',
-               'axolotl': 'axolotl.png'}
+               'axolotl': 'axolotl.png',
+               'cat': 'cat.png',
+               'elephant': 'elephant.png',
+               'bird': 'bird.png',
+               'unicorn': 'unicorn.png'}
 
 # enter the piece information
 animals = [animal for animal in piece_icons.keys()]
-colors = ['red', 'green', 'blue', 'yellow', 'orange', 'purple']
+colors = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'gray', 'pink']
 
