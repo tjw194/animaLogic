@@ -51,5 +51,6 @@ piece_icons = {'hippo': 'hippo.png',
 
 # enter the piece information
 animals = [animal for animal in piece_icons.keys()]
-colors = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'gray', 'pink']
+colors = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'gray', 'pink', 'saddlebrown', 'peachpuff', 'white']
+
 

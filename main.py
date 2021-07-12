@@ -16,10 +16,13 @@ pygame.display.set_caption('AnimaLogic')
 icon = pygame.image.load('./images/giraffe (1).png')
 pygame.display.set_icon(icon)
 basic_font = pygame.font.Font('./fonts/Roboto-Bold.ttf', font_size)
-tile_font = pygame.font.Font('./fonts/Roboto-Bold.ttf', tile_font_size)
+small_font = pygame.font.Font('./fonts/Roboto-Bold.ttf', tile_font_size)
 
 # TODO: change background and add in bridge
 background = pygame.image.load('./images/background.png')
+
+assist_mode = False
+on_track = True
 
 
 def make_text(text, color, bg_color, top, left):
@@ -35,6 +38,7 @@ undo_surf, undo_rect = make_text('Undo Move', text_color, tile_color, window_wid
 reset_surf, reset_rect = make_text('Reset', text_color, tile_color, window_width - 220, window_height - panel_height - 180)
 solve_surf, solve_rect = make_text('Solve', text_color, tile_color, window_width - 220, window_height - panel_height - 120)
 new_surf, new_rect = make_text('New Game', text_color, tile_color, window_width - 220, window_height - panel_height - 60)
+assist_surf, assist_rect = make_text(str(on_track), text_color, tile_color, 0, window_height - panel_height - 60)
 
 
 def terminate():
@@ -199,6 +203,10 @@ def draw_board(board, message):
     display_surf.blit(solve_surf, solve_rect)
     display_surf.blit(undo_surf, undo_rect)
 
+    # assist mode display
+    if assist_mode:
+        display_surf.blit(assist_surf, assist_rect)
+
     # draw panel to hold picked tiles
     pygame.draw.rect(display_surf, tile_color, pygame.Rect(0, window_height - panel_height, window_width, panel_height), 3)
     for _, move in enumerate(all_moves):
@@ -220,7 +228,7 @@ def pathfinder(board, path=[]):
             if (choice.split(' ')[0] == option.split(' ')[0]) or (choice.split(' ')[1] == option.split(' ')[1]):
                 pot_paths.append(option)
     # base case
-    if not options:
+    if not pot_paths:
         paths.append(path)
         return paths
     else:
@@ -235,23 +243,53 @@ def pathfinder(board, path=[]):
             pathfinder(new_board, new_path)
 
 
+solutions = []
+
+
+def solver():
+    for path in paths:
+        if len(path) == board_width * board_height:
+            solutions.append(path)
+    return solutions, len(solutions), len(paths)
+
+
+# take user input for board size
+board_size = int(input('Enter integer for board size (e.g. "4" for 4x4 board): '))
+if board_size:
+    board_width = board_size
+    board_height = board_size
+
 def main():
 
-    global all_moves, paths
+    global all_moves, paths, solutions, assist_surf, assist_rect, assist_mode
 
-    while not paths:
+    while not solutions:
         main_board = get_starting_board(get_pieces())
         pathfinder(main_board)
+        solutions, num_sols, num_paths = solver()
+
+        print(num_sols, num_paths)
 
     win_state = False
+    on_track = True
     # save a copy for undo and reset functions
     start_board = copy.deepcopy(main_board)
 
     while True:  # main game loop
 
-        msg = 'click animal to select.'  # contains the message to show in the upper left
+        # update solveable status for assist mode
+        assist_surf, assist_rect = make_text(str(on_track), text_color, tile_color, 20, window_height - panel_height - 60)
 
+        msg = f'The are {num_sols} solution(s) out of {num_paths} paths'  # contains the message to show in the upper left
 
+        # print True if current path is solveable
+        if len(all_moves) > 0:
+            for solution in solutions:
+                if solution[0:len(all_moves)] == all_moves:
+                    on_track = True
+                    break
+                else:
+                    on_track = False
 
         # when puzzle is solved
         if len(all_moves) == board_width * board_height:
@@ -267,6 +305,14 @@ def main():
         # clicking on the buttons
         check_for_quit()
         for event in pygame.event.get():
+            # toggle assist mode
+            if event.type == KEYDOWN:
+                if event.key == pygame.K_a:
+                    if assist_mode == False:
+                        assist_mode = True
+                    else:
+                        assist_mode = False
+
             if event.type == MOUSEBUTTONUP:
 
                 spot_x, spot_y = get_spot_clicked(main_board, event.pos[0], event.pos[1])
@@ -282,18 +328,21 @@ def main():
                     elif new_rect.collidepoint(event.pos):
                         win_state = False
                         paths = []
-                        while not paths:
+                        solutions = []
+                        while not solutions:
                             main_board = get_starting_board(get_pieces())
                             pathfinder(main_board)
+                            solutions, num_sols, num_paths = solver()
+
+                            print(num_sols, num_paths)
                         start_board = copy.deepcopy(main_board)
-                        # TODO: should check if puzzle is solveable
+
                         all_moves = []
                     elif solve_rect.collidepoint(event.pos):
-                        # need to implement solving function
-                        all_moves = paths[0]
+                        win_state = True
+                        all_moves = solutions[random.randint(0, len(solutions)-1)]
                     elif undo_rect.collidepoint(event.pos):
                         if len(all_moves) > 0:
-                            win_state = False
                             last_move = all_moves.pop(-1)
                             for x in range(len(start_board)):
                                 for y in range(len(start_board[x])):
