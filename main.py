@@ -253,12 +253,6 @@ def solver():
     return solutions, len(solutions), len(paths)
 
 
-# take user input for board size
-board_size = int(input('Enter integer for board size (e.g. "4" for 4x4 board): '))
-if board_size:
-    board_width = board_size
-    board_height = board_size
-
 def main():
 
     global all_moves, paths, solutions, assist_surf, assist_rect, assist_mode

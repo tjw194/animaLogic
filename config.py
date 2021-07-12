@@ -1,6 +1,13 @@
 # create the constants
 board_width = 4
 board_height = 4
+
+# take user input for board size
+board_size = int(input('Enter integer for board size (e.g. "4" for 4x4 board): '))
+if board_size:
+    board_width = board_size
+    board_height = board_size
+
 tile_size = 80 * (4 / board_height)
 icon_size = int(0.8 * tile_size)
 
