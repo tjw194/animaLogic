@@ -128,6 +128,19 @@ def get_left_top_of_tile(tile_x, tile_y):
     return (left, top)
 
 
+def get_left_top_of_panel_tile(order):
+    # get left top pixel location of the nth tile in the panel
+
+    # checking if tile needs to wrap to next row
+    row = order // (window_width // tile_size)
+
+    left = (order % (window_width // tile_size)) * tile_size
+    top = (window_height - panel_height) + row * tile_size
+
+    return (left, top)
+
+
+
 def get_spot_clicked(board, x, y):
     # from teh x, y coordinates get the x, y board coordinates
     for tile_x in range(len(board)):
@@ -157,6 +170,7 @@ def draw_tile(tile_x, tile_y, piece, adjx=0, adjy=0):
     img_rect.center = left + int(tile_size / 2) + adjx, top + int(tile_size / 2) + adjy
     display_surf.blit(animal_icon, img_rect)
 
+
 def draw_picked_tile(order, piece, adjx=0, adjy=0):
     # draw a tile at panel coordinates tile_x and tile_y
     # optionally a few pixels over determined by adjx and adj
@@ -179,6 +193,38 @@ def draw_picked_tile(order, piece, adjx=0, adjy=0):
     img_rect.center = left + int(tile_size / 2) + adjx, top + int(tile_size / 2) + adjy
     display_surf.blit(icon, img_rect)
 
+
+def animate_tile(tile_x, tile_y, order, piece, adjx=0, adjy=0):
+    # animate tile move to panel
+
+    # get starting and ending pixel locations
+    left_start, top_start = get_left_top_of_tile(tile_x, tile_y)
+    left_end, top_end = get_left_top_of_panel_tile(order)
+
+    # parse piece info
+    color = piece.split(' ')[0]
+    animal = piece.split(' ')[1]
+
+    speed = 5 # speed of animation
+
+    base_surf = display_surf.copy()
+    for i in range(speed):
+        display_surf.blit(base_surf, (0, 0))
+
+        left = int(left_start + ((left_end - left_start) * (i / speed)))
+        top = int(top_start + ((top_end - top_start) * (i / speed)))
+
+        pygame.draw.rect(display_surf, color, (left + adjx + 2, top + adjy, tile_size - 4, tile_size))
+
+        animal_icon = pygame.image.load(icon_path + piece_icons[animal])
+        animal_icon = pygame.transform.scale(animal_icon, (icon_size, icon_size))
+
+        img_rect = animal_icon.get_rect()
+        img_rect.center = left + int(tile_size / 2) + adjx, top + int(tile_size / 2) + adjy
+        display_surf.blit(animal_icon, img_rect)
+
+        pygame.display.update()
+        fps_clock.tick(fps)
 
 def draw_board(board, message):
     display_surf.fill(bg_color)
@@ -345,8 +391,14 @@ def main():
                 else:
                     # make sure choice is valid
                     if valid_move(main_board[spot_x][spot_y], main_board):
-                        all_moves.append(main_board[spot_x][spot_y])
+                        piece = main_board[spot_x][spot_y]
+
+
                         main_board[spot_x][spot_y] = None
+                        draw_board(main_board, msg)
+                        all_moves.append(piece)
+                        animate_tile(spot_x, spot_y, len(all_moves) - 1, piece)
+
 
 
         pygame.display.update()

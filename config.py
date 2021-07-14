@@ -3,8 +3,9 @@ board_width = 4
 board_height = 4
 
 # take user input for board size
-board_size = int(input('Enter integer for board size (e.g. "4" for 4x4 board): '))
+board_size = input('Enter integer for board size (e.g. "4" for 4x4 board): ')
 if board_size:
+    board_size = int(board_size)
     board_width = board_size
     board_height = board_size
 
@@ -54,10 +55,15 @@ piece_icons = {'hippo': 'hippo.png',
                'cat': 'cat.png',
                'elephant': 'elephant.png',
                'bird': 'bird.png',
-               'unicorn': 'unicorn.png'}
+               'unicorn': 'unicorn.png',
+               'flamingo': 'flamingo.png',
+               'fish': 'fish.png',
+               'pig': 'pig.png',
+               'cow': 'cow.png',
+               'duck': 'duck.png'}
 
 # enter the piece information
 animals = [animal for animal in piece_icons.keys()]
-colors = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'gray', 'pink', 'saddlebrown', 'peachpuff', 'white']
+colors = ['tomato', 'green', 'royalblue', 'yellow', 'orange2', 'purple4', 'gray', 'pink', 'saddlebrown', 'peachpuff', 'white', 'paleturquoise']
 
 
