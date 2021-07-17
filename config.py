@@ -29,11 +29,11 @@ dark_green = (0, 176, 29)
 magic_mint = (153, 255, 187)
 dark_blue = (0, 25, 50)
 
-bg_color = dark_blue
+bg_color = dark_khaki
 tile_color = black
 text_color = white
 border_color = dark_green
-font_size = 40
+font_size = 36
 tile_font_size = 12
 
 button_color = white
@@ -46,12 +46,7 @@ y_margin = int((window_height - panel_height - (tile_size * board_height + (boar
 
 # set up piece icons
 icon_path = 'images/piece_images/'
-piece_icons = {'hippo': 'hippo.png',
-               'lion': 'lion.png',
-               'camel': 'camel.png',
-               'giraffe': 'giraffe.png',
-               'monkey': 'monkey.png',
-               'axolotl': 'axolotl.png',
+piece_icons = {'axolotl': 'axolotl.png',
                'cat': 'cat.png',
                'elephant': 'elephant.png',
                'bird': 'bird.png',
@@ -60,7 +55,23 @@ piece_icons = {'hippo': 'hippo.png',
                'fish': 'fish.png',
                'pig': 'pig.png',
                'cow': 'cow.png',
-               'duck': 'duck.png'}
+               'duck': 'duck.png',
+               'haunter': 'haunter.png',
+               'man': 'man.png',
+               'turtle': 'turtle.png',
+               'black': 'black.png',
+               'cursola': 'cursola.png',
+               'snake': 'snake.png',
+               'frog': 'frog.png',
+               'jellyfish': 'jellyfish.png',
+               'tadpole': 'tadpole.png',
+               'bunny': 'bunny.png',
+               'gloom': 'gloom.png',
+               'camel': 'camel.png',
+               'giraffe': 'giraffe.png',
+               'hippo': 'hippo.png',
+               'monkey': 'monkey.png',
+               'lion': 'lion.png'}
 
 # enter the piece information
 animals = [animal for animal in piece_icons.keys()]

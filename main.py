@@ -18,8 +18,8 @@ pygame.display.set_icon(icon)
 basic_font = pygame.font.Font('./fonts/Roboto-Bold.ttf', font_size)
 small_font = pygame.font.Font('./fonts/Roboto-Bold.ttf', tile_font_size)
 
-# TODO: change background and add in bridge
-background = pygame.image.load('./images/background.png')
+# background with river, lake and bridge
+background = pygame.image.load('./images/background2.png')
 
 assist_mode = False
 on_track = True
@@ -230,7 +230,7 @@ def draw_board(board, message):
     display_surf.fill(bg_color)
     display_surf.blit(background, (0, 20))
     if message:
-        text_surf, text_ref = make_text(message, message_color, bg_color, 5, 5)
+        text_surf, text_ref = make_text(message, message_color, button_text_color, 5, 5)
 
         display_surf.blit(text_surf, text_ref)
 
@@ -308,7 +308,7 @@ def main():
         pathfinder(main_board)
         solutions, num_sols, num_paths = solver()
 
-        print(num_sols, num_paths)
+        # print(num_sols, num_paths)
 
     win_state = False
     on_track = True
@@ -374,7 +374,7 @@ def main():
                             pathfinder(main_board)
                             solutions, num_sols, num_paths = solver()
 
-                            print(num_sols, num_paths)
+                            # print(num_sols, num_paths)
                         start_board = copy.deepcopy(main_board)
 
                         all_moves = []
