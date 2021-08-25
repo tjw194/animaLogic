@@ -194,18 +194,16 @@ def draw_picked_tile(order, piece, adjx=0, adjy=0):
     display_surf.blit(icon, img_rect)
 
 
-def animate_tile(tile_x, tile_y, order, piece, adjx=0, adjy=0):
+def animate_tile(tile_x, tile_y, speed, piece, adjx=0, adjy=0):
     # animate tile move to panel
 
     # get starting and ending pixel locations
     left_start, top_start = get_left_top_of_tile(tile_x, tile_y)
-    left_end, top_end = get_left_top_of_panel_tile(order)
+    left_end, top_end = 320, -1.75 * tile_size  # moving approximately to the bridge and just off screen
 
     # parse piece info
     color = piece.split(' ')[0]
     animal = piece.split(' ')[1]
-
-    speed = 5 # speed of animation
 
     base_surf = display_surf.copy()
     for i in range(speed):
@@ -310,6 +308,11 @@ def main():
 
         # print(num_sols, num_paths)
 
+    # background sound
+    if music in ['y', 'yes', 'Yes']:
+        mixer.music.load('./sounds/animaLogic.wav')
+        mixer.music.play(-1)
+
     win_state = False
     on_track = True
     # save a copy for undo and reset functions
@@ -380,7 +383,18 @@ def main():
                         all_moves = []
                     elif solve_rect.collidepoint(event.pos):
                         win_state = True
-                        all_moves = solutions[random.randint(0, len(solutions)-1)]
+                        solved_moves = solutions[random.randint(0, len(solutions)-1)]
+                        for move in solved_moves:
+                            for x in range(len(start_board)):
+                                for y in range(len(start_board[x])):
+                                    if move == start_board[x][y]:
+                                        spot_x = x
+                                        spot_y = y
+                            main_board[spot_x][spot_y] = None
+                            draw_board(main_board, msg)
+                            animate_tile(spot_x, spot_y, 5, move)
+                        all_moves = solved_moves
+                        draw_board(main_board, msg)
                     elif undo_rect.collidepoint(event.pos):
                         if len(all_moves) > 0:
                             last_move = all_moves.pop(-1)
@@ -391,13 +405,20 @@ def main():
                 else:
                     # make sure choice is valid
                     if valid_move(main_board[spot_x][spot_y], main_board):
+
+                        # make the click sound
+                        click_sound = mixer.Sound('./sounds/click.wav')
+                        click_sound.set_volume(0.5)
+                        click_sound.play()
+
+                        # grab the chosen piece
                         piece = main_board[spot_x][spot_y]
 
-
+                        # update board, list of moves and send tile to the bridge
                         main_board[spot_x][spot_y] = None
                         draw_board(main_board, msg)
                         all_moves.append(piece)
-                        animate_tile(spot_x, spot_y, len(all_moves) - 1, piece)
+                        animate_tile(spot_x, spot_y, 10, piece)
 
 
 

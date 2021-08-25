@@ -1,9 +1,15 @@
+import pyinputplus as pyip
+
 # create the constants
 board_width = 4
 board_height = 4
 
+# take user input for music
+music = pyip.inputYesNo(prompt='Play with music? ')
+
 # take user input for board size
-board_size = input('Enter integer for board size (e.g. "4" for 4x4 board): ')
+board_size = pyip.inputInt(prompt='Enter integer for board size (e.g. "4" for 4x4 board): ', min=1, max=6)
+
 if board_size:
     board_size = int(board_size)
     board_width = board_size
@@ -24,12 +30,12 @@ fps = 30
 # color pallete - rgb values
 black = (0, 0, 0)
 white = (255, 255, 255)
-dark_khaki = (168, 184, 92)
+golden_sand = (239, 226, 124)
 dark_green = (0, 176, 29)
 magic_mint = (153, 255, 187)
 dark_blue = (0, 25, 50)
 
-bg_color = dark_khaki
+bg_color = golden_sand
 tile_color = black
 text_color = white
 border_color = dark_green
@@ -71,7 +77,15 @@ piece_icons = {'axolotl': 'axolotl.png',
                'giraffe': 'giraffe.png',
                'hippo': 'hippo.png',
                'monkey': 'monkey.png',
-               'lion': 'lion.png'}
+               'lion': 'lion.png',
+               'dog': 'dog.png',
+               'octopus': 'octopus.png',
+               'vanillish': 'vanillish.png',
+               'combee': 'combee.png',
+               'klink': 'klink.png',
+               'ghastly': 'ghastly.png',
+               'penguin': 'penguin.png',
+               'bear': 'bear.png'}
 
 # enter the piece information
 animals = [animal for animal in piece_icons.keys()]
